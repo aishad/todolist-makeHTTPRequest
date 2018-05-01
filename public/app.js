@@ -5,17 +5,6 @@ function inputChanged() {
     setState({ formInput: event.target.value });
 }
 
-// Don't try to understand the body of this function. You just 
-// need to understand what each parameter represents
-function makeHTTPRequest(meth, path, body, cb) {
-    fetch(path, {
-        body: body,
-        method: meth
-    })
-        .then(response => response.text())
-        .then(responseBody => cb ? cb(responseBody) : undefined)
-}
-
 // We're going to try and stick with React's way of doing things
 let state = { items: [], formInput: "" }
 
@@ -41,28 +30,56 @@ function setState(newState) {
     rerender();
 }
 
-function sendItemToServer(item) {
-    // This function is so short it could be inlined
     let cb = (itemsFromServer) => {
         let parsedItems = JSON.parse(itemsFromServer)
-        setState({ items: parsedItems })
-    }
-    makeHTTPRequest('POST', '/addItem', JSON.stringify(item), cb)
+         setState({ items: parsedItems })
+
+     }
+function sendItemToServer(item) {
+
+    fetch('/addItem', {
+        method:'POST',
+        body: JSON.stringify(item)
+    })
+    .then(response =>response.text())
+    .then(responseBody => cb ? cb(responseBody) : undefined )
 }
 
 // When you submit the form, it sends the item to the server
 function submitForm() {
     event.preventDefault();
     sendItemToServer(state.formInput);
+    setState({formInput: " "})
+
 }
 
 // When the client starts he needs to populate the list of items
 function getAllItems() {
-    let cb = (itemsFromServer) => {
-        let parsedItems = JSON.parse(itemsFromServer)
-        setState({ items: parsedItems })
-    }
-    makeHTTPRequest('GET', '/items', undefined, cb)
+
+    fetch('/items', {
+        method:'GET'
+    })
+    .then(response =>response.text())
+    .then(responseBody => cb ? cb(responseBody) : undefined )
+}
+
+
+function clearItems() {
+
+    fetch('/clearItem', {
+        method:'GET'
+    })
+    .then(response =>response.text())
+    .then(responseBody => cb ? cb(responseBody) : undefined )
+}
+
+function reverseItems() {
+
+    fetch('/reverseitems', {
+        method:'GET'
+    })
+    .then(response =>response.text())
+    .then(responseBody => cb ? cb(responseBody) : undefined )
 }
 
 // We define a function and then call it right away. I did this to structure the file.
